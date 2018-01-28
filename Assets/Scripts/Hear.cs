@@ -14,7 +14,7 @@ public class Hear : MonoBehaviour {
     {
         song = GetComponent<AudioSource>();
 
-        words.Add("tide pods", () => { testCall(); });               //map a phrase to a function
+        words.Add("testing", () => { testCall(); });               //map a phrase to a function
         recognizer = new KeywordRecognizer(words.Keys.ToArray());  //initialize recognizer, uses dictionary
         recognizer.OnPhraseRecognized += TextToAction;             //when a phrase in dict is recognized, execute its function
         recognizer.Start();                                        //activate recognizer
