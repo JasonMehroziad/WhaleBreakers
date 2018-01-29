@@ -7,7 +7,8 @@ using System;
 using System.Linq;
 
 public class MessageManager : MonoBehaviour {
-    Dictionary<string, System.Action> words = new Dictionary<string, System.Action>();
+    public Dictionary<string, System.Action> words = new Dictionary<string, System.Action>();
+    public GameObject o3;
 
     public bool nextMessage;
 
@@ -18,7 +19,7 @@ public class MessageManager : MonoBehaviour {
 	public Text option1;
 	public Text option2; 
 	public Text option3;
-	private int lineNumber;
+	public int lineNumber;
 
 	//voice recognitor
 	public static bool messageStop;
@@ -30,11 +31,11 @@ public class MessageManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
+        o3.SetActive(false);
         nextMessage = false;
 		personality = 0;
 		messageStop = false; 
 		lineNumber = 0;
-		isOption3 = false;
 		MessageAndAnswers = System.IO.File.ReadAllLines ("Assets/TextFiles/" + fileName);
 
         StartCoroutine(GetMessages());
@@ -42,33 +43,55 @@ public class MessageManager : MonoBehaviour {
 
     private IEnumerator GetMessages()
 	{
-		if (!messageStop) 
+		while(lineNumber < MessageAndAnswers.Length)
 		{
-			if (MessageAndAnswers [lineNumber].IndexOf ("P .") != -1) 
-			{
-                message.text = MessageAndAnswers [lineNumber].Substring(3);
-				lineNumber++;
-				words.Add (MessageAndAnswers [lineNumber].Substring (3), () => { incPers1 (); });
-				option1.text = MessageAndAnswers [lineNumber].Substring (3);
-				lineNumber++;
-				words.Add (MessageAndAnswers [lineNumber].Substring (3), () => { incPers2 (); });
-				option2.text = MessageAndAnswers [lineNumber].Substring (3);
-				lineNumber++;
-				words.Add (MessageAndAnswers [lineNumber].Substring (3), () => { incPers3 (); });
-				option3.text = MessageAndAnswers [lineNumber].Substring (3);
-				lineNumber++;
+            if (MessageAndAnswers[lineNumber].IndexOf("P .") != -1)
+            {
+                o3.SetActive(true);
+                message.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+                words.Add(MessageAndAnswers[lineNumber].Substring(3), () => { incPers1(); });
+                option1.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+                words.Add(MessageAndAnswers[lineNumber].Substring(3), () => { incPers2(); });
+                option2.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+                words.Add(MessageAndAnswers[lineNumber].Substring(3), () => { incPers3(); });
+                option3.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+            }
 
-                KeywordRecognizer recognizer = new KeywordRecognizer(words.Keys.ToArray());  //initialize recognizer, uses dictionary
-                recognizer.OnPhraseRecognized += TextToAction;                               //when a phrase in dict is recognized, execute its function
-                recognizer.Start();                                                          //activate recognizer
+            if(MessageAndAnswers[lineNumber].IndexOf("Q .") != -1)
+            {
+                o3.SetActive(false);
+                option3.text = "";
+                message.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+                words.Add(MessageAndAnswers[lineNumber].Substring(3), () => { choice1(); });
+                option1.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+                words.Add(MessageAndAnswers[lineNumber].Substring(3), () => { choice2(); });
+                option2.text = MessageAndAnswers[lineNumber].Substring(3);
+                lineNumber++;
+            }
 
-                yield return new WaitUntil(() => nextMessage);
+            KeywordRecognizer recognizer = new KeywordRecognizer(words.Keys.ToArray());  //initialize recognizer, uses dictionary
+            recognizer.OnPhraseRecognized += TextToAction;                               //when a phrase in dict is recognized, execute its function
+            recognizer.Start();                                                          //activate recognizer
+        
+            yield return new WaitUntil(() => nextMessage);
                 nextMessage = false;
                 words.Clear();
                 recognizer.Stop();
+                lineNumber++;
+            
+            if (!o3.activeInHierarchy)
+            {
+                yield return new WaitForSeconds(1.0f);
+                message.color = Color.white;
             }
-		}
-	}
+        }
+    }
 
 	private void TextToAction(PhraseRecognizedEventArgs args)
 	{
@@ -94,9 +117,20 @@ public class MessageManager : MonoBehaviour {
 		personality += 3;
         nextMessage = true;
     }
-						
-
-	
-
+	private void choice1()
+    {
+        message.text = MessageAndAnswers[lineNumber];
+        message.color = Color.green;
+        nextMessage = true;
+        lineNumber += 2;
+    }				
+    private void choice2()
+    {
+        lineNumber++;
+        message.text = MessageAndAnswers[lineNumber];
+        message.color = Color.red;
+        nextMessage = true;
+        lineNumber++;
+    }
 
 }
