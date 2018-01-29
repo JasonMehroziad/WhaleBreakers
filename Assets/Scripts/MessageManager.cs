@@ -9,8 +9,10 @@ using System.Linq;
 public class MessageManager : MonoBehaviour {
     public Dictionary<string, System.Action> words = new Dictionary<string, System.Action>();
     public GameObject o3;
+    public GameObject display;
 
     public bool nextMessage;
+    public int humansWin;
 
     public int personality;
    
@@ -19,24 +21,29 @@ public class MessageManager : MonoBehaviour {
 	public Text option1;
 	public Text option2; 
 	public Text option3;
+    public Text epilogue;
 	public int lineNumber;
 
 	//voice recognitor
 	public static bool messageStop;
 
-	private string[] MessageAndAnswers;  
+	private string[] MessageAndAnswers;
+    private string[] epilogueOptions;
 
 	private bool isOption3;
 
 	// Use this for initialization
 	void Start () 
 	{
+        humansWin = 0;
         o3.SetActive(false);
         nextMessage = false;
 		personality = 0;
 		messageStop = false; 
 		lineNumber = 0;
 		MessageAndAnswers = System.IO.File.ReadAllLines ("Assets/TextFiles/" + fileName);
+        fileName = "epilogue.txt";
+        epilogueOptions = System.IO.File.ReadAllLines("Assets/TextFiles/" + fileName);
 
         StartCoroutine(GetMessages());
     }
@@ -87,9 +94,77 @@ public class MessageManager : MonoBehaviour {
             
             if (!o3.activeInHierarchy)
             {
-                yield return new WaitForSeconds(1.0f);
+                yield return new WaitForSeconds(5.0f);
                 message.color = Color.white;
             }
+        }
+        display.SetActive(false);
+        for (int i = 0; i < epilogueOptions.Length;)
+        {
+            if (humansWin >= 0)
+            {
+                while (i < 14)
+                {
+                    epilogue.text += epilogueOptions[i];
+                    i++;
+                }
+                if(personality > 5 && personality < 11)
+                {
+                        i = 23;
+                    while (i < 31)
+                    {
+                        epilogue.text += epilogueOptions[i];
+                        i++;
+                    }
+                }
+                else if(personality > 10 && personality < 15)
+                {
+                    
+                    i = 47;
+                    while (i < 51)
+                    {
+                        epilogue.text += epilogueOptions[i];
+                        i++;
+                    }
+                }
+                else
+                {
+                    i = 31;
+                    while (i < 38)
+                    {
+                        epilogue.text += epilogueOptions[i];
+                        i++;
+                    }
+                }
+            }else if(humansWin < 0)
+                {
+                i = 14;
+                while (i < 23)
+                {
+                    epilogue.text += epilogueOptions[i];
+                    i++;
+                }
+                if (personality < 10)
+                {
+                    i = 47;
+                    while (i < epilogueOptions.Length)
+                    {
+                        epilogue.text += epilogueOptions[i];
+                        i++;
+                    }
+                }
+                if(personality > 10)
+                {
+                    i = 51;
+                    while (i < epilogueOptions.Length)
+                    {
+                        epilogue.text += epilogueOptions[i];
+                        i++;
+                    }
+                }
+          
+            }
+
         }
     }
 
@@ -123,6 +198,7 @@ public class MessageManager : MonoBehaviour {
         message.color = Color.green;
         nextMessage = true;
         lineNumber += 2;
+        humansWin++;
     }				
     private void choice2()
     {
@@ -131,6 +207,6 @@ public class MessageManager : MonoBehaviour {
         message.color = Color.red;
         nextMessage = true;
         lineNumber++;
+        humansWin--;
     }
-
 }

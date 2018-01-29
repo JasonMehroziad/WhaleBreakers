@@ -64,6 +64,7 @@
      <Compile Include="Assets\Scripts\Visualizer.cs" />
      <None Include="Assets\TextFiles\Questions.txt" />
      <None Include="Assets\TextFiles\Script.txt" />
+     <None Include="Assets\TextFiles\epilogue.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
